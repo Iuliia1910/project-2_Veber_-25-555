@@ -1,7 +1,8 @@
-from primitive_db.engine import welcome
+#!/usr/bin/env python3
+from primitive_db.engine import run
 
-def main() -> None:
-        welcome()
+def main():
+    run()
 
 if __name__ == "__main__":
-        main()
+    main()
