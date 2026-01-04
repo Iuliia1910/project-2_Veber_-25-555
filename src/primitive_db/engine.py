@@ -1,22 +1,26 @@
-
+# src/primitive_db/engine.py
 import shlex
 from primitive_db.utils import load_metadata, save_metadata
 from primitive_db.core import create_table, drop_table, list_tables
 
 DB_META_FILE = "db_meta.json"
 
+
 def print_help():
+    """Выводит справку по командам"""
     print("\n***Процесс работы с таблицей***")
     print("Функции:")
     print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
     print("<command> list_tables - показать список всех таблиц")
     print("<command> drop_table <имя_таблицы> - удалить таблицу")
+
     print("\nОбщие команды:")
     print("<command> exit - выход из программы")
     print("<command> help - справочная информация\n")
 
+
 def run():
-    """Основной цикл программы."""
+    """Основной цикл программы"""
     while True:
         metadata = load_metadata(DB_META_FILE)
         user_input = input(">>>Введите команду: ")
@@ -54,4 +58,3 @@ def run():
             list_tables(metadata)
         else:
             print(f"Функции {command} нет. Попробуйте снова.")
-

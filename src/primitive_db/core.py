@@ -4,6 +4,7 @@ from typing import Dict, List
 VALID_TYPES = {"int", "str", "bool"}
 
 def create_table(metadata: Dict, table_name: str, columns: List[str]) -> Dict:
+    """Создаёт таблицу с проверкой типов и добавлением ID:int"""
     if table_name in metadata:
         print(f'Ошибка: Таблица "{table_name}" уже существует.')
         return metadata
@@ -27,6 +28,7 @@ def create_table(metadata: Dict, table_name: str, columns: List[str]) -> Dict:
     return metadata
 
 def drop_table(metadata: Dict, table_name: str) -> Dict:
+    """Удаляет таблицу, если она существует"""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return metadata
@@ -36,6 +38,7 @@ def drop_table(metadata: Dict, table_name: str) -> Dict:
     return metadata
 
 def list_tables(metadata: Dict) -> None:
+    """Показывает список всех таблиц"""
     if not metadata:
         print("Таблиц нет.")
         return
