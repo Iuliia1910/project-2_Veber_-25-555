@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "project-2-veber-25-555"
+version = "0.1.0"
+description = ""
+authors = ["Iuliia Veber <pestonova.yulya@yandex.ru>"]
+readme = "README.md"
+
+packages = [
+    { include = "primitive_db", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.13"
+prompt = "^0.4.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
+
+[tool.poetry.scripts]
+project = "primitive_db.main:main"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+
+line-length = 88
+target-version = "py312"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
