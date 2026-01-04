@@ -1,0 +1,13 @@
+{
+    "users": [
+        "ID:int",
+        "ID:int",
+        "name:str"
+    ],
+    "products": [
+        "ID:int",
+        "name:str",
+        "price:int",
+        "is_available:bool"
+    ]
+}
