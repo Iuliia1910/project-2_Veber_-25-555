@@ -102,9 +102,6 @@ def delete_rows(table_data: List[dict] | None, where: dict) -> List[dict]:
     print("Записи успешно удалены.")
     return new_data
 
-# =========================
-# INFO
-# =========================
 
 @handle_db_errors
 def table_info(metadata: Dict, table_name: str, table_data: List[dict] | None) -> dict:
