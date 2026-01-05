@@ -1,7 +1,6 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
 
 # Poetry / virtual environment
 .venv/
@@ -10,10 +9,6 @@ poetry.lock
 # System
 .DS_Store
 
-# Database files
+# Database / temp data
 db_meta.json
 src/primitive_db/data/
-
-# Build / Dist
-dist/
-build/
