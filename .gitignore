@@ -1,8 +1,19 @@
-.venv/
-dist/
+# Python
 __pycache__/
-.idea
 *.pyc
-build/
+*.pyo
+
+# Poetry / virtual environment
+.venv/
+poetry.lock
+
+# System
+.DS_Store
+
+# Database files
 db_meta.json
-data/
+src/primitive_db/data/
+
+# Build / Dist
+dist/
+build/
