@@ -1,14 +1,20 @@
+# IDE
+.idea/
+
+# Сборки
+dist/
+
+# Локальные данные
+data/
+db_meta.json
+
 # Python
 __pycache__/
 *.pyc
 
-# Poetry / virtual environment
+# Виртуальное окружение
 .venv/
 poetry.lock
 
-# System
+# Системные
 .DS_Store
-
-# Database / temp data
-db_meta.json
-src/primitive_db/data/
