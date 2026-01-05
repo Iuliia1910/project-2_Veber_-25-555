@@ -82,3 +82,4 @@ exit	Выйти из программы
 
 
 Запись на asciinema - https://asciinema.org/a/zpY7kbVh3g8h1zYPt8aYhfqwD
+Благодарю за внимание!
