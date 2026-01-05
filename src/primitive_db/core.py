@@ -1,114 +1,125 @@
 # src/primitive_db/core.py
-from typing import Dict, List
+from typing import Dict, List, Any
+from primitive_db.decorators import handle_db_errors, confirm_action, log_time
 
-# поддерживаемые типы для колонок
-VALID_TYPES = {"int", "str", "bool"}
-TYPE_CAST = {
-    "int": int,
-    "str": str,
-    "bool": lambda x: x.lower() == "true",
-}
+VALID_TYPES = {"int": int, "str": str, "bool": bool}
 
+# =========================
+# TABLE OPERATIONS
+# =========================
+
+@handle_db_errors
 def create_table(metadata: Dict, table_name: str, columns: List[str]) -> Dict:
-    """Создаёт таблицу с проверкой типов и добавлением ID:int"""
     if table_name in metadata:
-        print(f'Ошибка: Таблица "{table_name}" уже существует.')
-        return metadata
+        raise KeyError(f'Таблица "{table_name}" уже существует')
 
     parsed_columns = []
     for col in columns:
         if ":" not in col:
-            print(f"Некорректное значение: {col}. Попробуйте снова.")
-            return metadata
+            raise ValueError(f"Некорректное значение: {col}")
         name, typ = col.split(":")
         if typ not in VALID_TYPES:
-            print(f"Некорректное значение: {typ}. Попробуйте снова.")
-            return metadata
+            raise ValueError(f"Некорректный тип данных: {typ}")
         parsed_columns.append(f"{name}:{typ}")
 
-    # добавляем ID:int
     parsed_columns.insert(0, "ID:int")
-
     metadata[table_name] = parsed_columns
     print(f'Таблица "{table_name}" успешно создана со столбцами: {", ".join(parsed_columns)}')
     return metadata
 
-
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata: Dict, table_name: str) -> Dict:
-    """Удаляет таблицу"""
     if table_name not in metadata:
-        print(f'Ошибка: Таблица "{table_name}" не существует.')
-        return metadata
-
+        raise KeyError(f'Таблица "{table_name}" не существует')
     metadata.pop(table_name)
     print(f'Таблица "{table_name}" успешно удалена.')
     return metadata
 
+@handle_db_errors
+def list_tables(metadata: Dict) -> List[str]:
+    return list(metadata.keys())
 
-def list_tables(metadata: Dict) -> None:
-    """Показывает список всех таблиц"""
-    if not metadata:
-        print("Таблиц нет.")
-        return
-    for table in metadata:
-        print(f"- {table}")
+# =========================
+# DATA OPERATIONS
+# =========================
 
-
-# ---------------- CRUD ----------------
-
-def insert_row(metadata: Dict, table_name: str, values: List[str], table_data: List[dict]) -> List[dict]:
+@handle_db_errors
+@log_time
+def insert(metadata: Dict, table_name: str, values: List[Any], table_data: List[dict] | None) -> List[dict]:
     if table_name not in metadata:
-        print(f'Ошибка: Таблица "{table_name}" не существует.')
-        return table_data
+        raise KeyError(f'Таблица "{table_name}" не существует')
 
-    columns = metadata[table_name][1:]  # без ID
+    table_data = table_data or []
+    columns = metadata[table_name][1:]
+
     if len(values) != len(columns):
-        print("Ошибка: Некорректное количество значений.")
-        return table_data
+        raise ValueError("Некорректное количество значений")
 
-    new_id = max([row["ID"] for row in table_data], default=0) + 1
+    new_id = max((row["ID"] for row in table_data), default=0) + 1
     record = {"ID": new_id}
 
-    for col_def, raw_value in zip(columns, values):
-        name, typ = col_def.split(":")
+    for col, value in zip(columns, values):
+        name, typ = col.split(":")
         try:
-            record[name] = TYPE_CAST[typ](raw_value)
+            record[name] = VALID_TYPES[typ](value)
         except Exception:
-            print(f"Некорректное значение: {raw_value}")
-            return table_data
+            raise ValueError(f"Некорректное значение для поля {name}: {value}")
 
     table_data.append(record)
     print(f'Запись с ID={new_id} успешно добавлена в таблицу "{table_name}".')
     return table_data
 
-
-def select_rows(table_data: List[dict], where: dict | None = None) -> List[dict]:
+@handle_db_errors
+@log_time
+def select_rows(table_data: List[dict] | None, where: dict | None = None) -> List[dict]:
+    table_data = table_data or []
     if not where:
         return table_data
     key, value = next(iter(where.items()))
     return [row for row in table_data if row.get(key) == value]
 
-
-def update_rows(table_data: List[dict], set_clause: dict, where: dict) -> List[dict]:
-    key_w, value_w = next(iter(where.items()))
+@handle_db_errors
+def update_rows(table_data: List[dict] | None, set_clause: dict, where: dict) -> List[dict]:
+    table_data = table_data or []
+    key, value = next(iter(where.items()))
     updated = False
     for row in table_data:
-        if row.get(key_w) == value_w:
+        if row.get(key) == value:
             for k, v in set_clause.items():
                 row[k] = v
-            print(f'Запись с ID={row["ID"]} в таблице успешно обновлена.')
             updated = True
     if not updated:
-        print("Записи, соответствующей условию, не найдено.")
+        raise ValueError("Записи для обновления не найдены")
+    print("Записи успешно обновлены.")
     return table_data
 
-
-def delete_rows(table_data: List[dict], where: dict) -> List[dict]:
+@handle_db_errors
+@confirm_action("удаление записи")
+def delete_rows(table_data: List[dict] | None, where: dict) -> List[dict]:
+    table_data = table_data or []
     key, value = next(iter(where.items()))
-    initial_len = len(table_data)
-    table_data = [row for row in table_data if row.get(key) != value]
-    if len(table_data) < initial_len:
-        print("Запись успешно удалена.")
-    else:
-        print("Записи, соответствующей условию, не найдено.")
-    return table_data
+    new_data = [row for row in table_data if row.get(key) != value]
+    if len(new_data) == len(table_data):
+        raise ValueError("Записи для удаления не найдены")
+    print("Записи успешно удалены.")
+    return new_data
+
+# =========================
+# INFO
+# =========================
+
+@handle_db_errors
+def table_info(metadata: Dict, table_name: str, table_data: List[dict] | None) -> dict:
+    if table_name not in metadata:
+        raise KeyError(f'Таблица "{table_name}" не существует')
+    table_data = table_data or []
+    info = {
+        "name": table_name,
+        "columns": metadata[table_name],
+        "rows_count": len(table_data),
+    }
+    print(f"Таблица: {info['name']}")
+    print(f"Столбцы: {', '.join(info['columns'])}")
+    print(f"Количество записей: {info['rows_count']}")
+    return info
