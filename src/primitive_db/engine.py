@@ -1,8 +1,24 @@
 # src/primitive_db/engine.py
 import shlex
-from primitive_db.utils import load_metadata, save_metadata, load_table_data, save_table_data
-from primitive_db.core import create_table, drop_table, list_tables, insert, select_rows, update_rows, delete_rows, table_info
+
 from prettytable import PrettyTable
+
+from primitive_db.core import (
+    create_table,
+    delete_rows,
+    drop_table,
+    insert,
+    list_tables,
+    select_rows,
+    table_info,
+    update_rows,
+)
+from primitive_db.utils import (
+    load_metadata,
+    load_table_data,
+    save_metadata,
+    save_table_data,
+)
 
 DB_META_FILE = "db_meta.json"
 
@@ -14,7 +30,8 @@ def print_help():
     print("<command> list_tables")
     print("<command> insert into <имя_таблицы> values (<значения>)")
     print("<command> select from <имя_таблицы> [where <столбец>=<значение>]")
-    print("<command> update <имя_таблицы> set <столбец>=<значение> where <столбец>=<значение>")
+    print("<command> update <имя_таблицы> set <столбец>=<значение> "
+          "where <столбец>=<значение>")
     print("<command> delete from <имя_таблицы> where <столбец>=<значение>")
     print("<command> info <имя_таблицы>")
     print("<command> help")

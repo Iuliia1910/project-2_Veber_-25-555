@@ -1,12 +1,9 @@
 # src/primitive_db/core.py
-from typing import Dict, List, Any
-from primitive_db.decorators import handle_db_errors, confirm_action, log_time
+from typing import Any, Dict, List
+
+from primitive_db.decorators import confirm_action, handle_db_errors, log_time
 
 VALID_TYPES = {"int": int, "str": str, "bool": bool}
-
-# =========================
-# TABLE OPERATIONS
-# =========================
 
 @handle_db_errors
 def create_table(metadata: Dict, table_name: str, columns: List[str]) -> Dict:
@@ -24,7 +21,8 @@ def create_table(metadata: Dict, table_name: str, columns: List[str]) -> Dict:
 
     parsed_columns.insert(0, "ID:int")
     metadata[table_name] = parsed_columns
-    print(f'Таблица "{table_name}" успешно создана со столбцами: {", ".join(parsed_columns)}')
+    print(f'Таблица "{table_name}" успешно создана '
+          f'со столбцами: {", ".join(parsed_columns)}')
     return metadata
 
 @handle_db_errors
@@ -40,13 +38,10 @@ def drop_table(metadata: Dict, table_name: str) -> Dict:
 def list_tables(metadata: Dict) -> List[str]:
     return list(metadata.keys())
 
-# =========================
-# DATA OPERATIONS
-# =========================
-
 @handle_db_errors
 @log_time
-def insert(metadata: Dict, table_name: str, values: List[Any], table_data: List[dict] | None) -> List[dict]:
+def insert(metadata: Dict, table_name: str, values: List[Any],
+           table_data: List[dict] | None) -> List[dict]:
     if table_name not in metadata:
         raise KeyError(f'Таблица "{table_name}" не существует')
 
@@ -72,7 +67,8 @@ def insert(metadata: Dict, table_name: str, values: List[Any], table_data: List[
 
 @handle_db_errors
 @log_time
-def select_rows(table_data: List[dict] | None, where: dict | None = None) -> List[dict]:
+def select_rows(table_data: List[dict] | None,
+                where: dict | None = None) -> List[dict]:
     table_data = table_data or []
     if not where:
         return table_data
@@ -80,7 +76,8 @@ def select_rows(table_data: List[dict] | None, where: dict | None = None) -> Lis
     return [row for row in table_data if row.get(key) == value]
 
 @handle_db_errors
-def update_rows(table_data: List[dict] | None, set_clause: dict, where: dict) -> List[dict]:
+def update_rows(table_data: List[dict] | None, set_clause: dict,
+                where: dict) -> List[dict]:
     table_data = table_data or []
     key, value = next(iter(where.items()))
     updated = False
